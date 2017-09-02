@@ -7,6 +7,20 @@ import UIKit
 class RadialMenuView: UIView {
     private let model: RadialMenuModel
     private var controller: RadialMenuController?
+    var radius: CGFloat {
+        get {
+            if let controller = controller {
+                return controller.radius
+            }
+            return 0
+        }
+        set {
+            if let controller = controller {
+                controller.radius = newValue
+            }
+        }
+    }
+
     
     //MARK: - Setup & Teardown
     
@@ -17,7 +31,6 @@ class RadialMenuView: UIView {
         self.model = RadialMenuModel(primaryButton: primaryButton, secondaryButtons: secondaryButtons)
         super.init(frame: primaryButton.bounds)
         self.controller = RadialMenuController(withModel: self.model, view: self)
-        clipsToBounds = false
         isOpaque = false
     }
     

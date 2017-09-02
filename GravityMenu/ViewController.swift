@@ -14,7 +14,7 @@ class ViewController: UIViewController {
         primaryButton.backgroundColor = .purple
         
         var secondaryButtons = [UIButton]()
-        for i in 1...1 {
+        for i in 1...8 {
             let secondaryButton = UIButton(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
             secondaryButton.backgroundColor = .blue
             secondaryButton.tag = i

@@ -8,12 +8,26 @@ enum RadialMenuState {
     case open, closed
 }
 
+enum RadialMenuExpansionMode {
+    case full, half
+}
+
 class RadialMenuController {
     let model: RadialMenuModel
     weak var view: RadialMenuView?
     var dynamicAnimator: UIDynamicAnimator?
     var dynamicBehaviors = [UIDynamicBehavior]()
     var state: RadialMenuState = .closed {
+        didSet {
+            updateBehaviors()
+        }
+    }
+    var radius: CGFloat = 100 {
+        didSet {
+            updateBehaviors()
+        }
+    }
+    var expansionMode: RadialMenuExpansionMode = .full {
         didSet {
             updateBehaviors()
         }
@@ -73,17 +87,43 @@ class RadialMenuController {
             return
         }
         
-        for behavior in dynamicBehaviors {
+        for (i, behavior) in dynamicBehaviors.enumerated() {
             guard let snapBehavior = behavior as? UISnapBehavior else {
                 continue
             }
             
             var point = view.center
             if state == .open {
-                point = CGPoint(x: view.center.x, y: view.center.y + 100)
+                point = calculatePointForIndex(i, totalCount: dynamicBehaviors.count, origin: view.center, radius: radius, fullAngle: 360, centeredOnAngle: 90)
             }
             snapBehavior.snapPoint = point
         }
+    }
+    
+    private func calculatePointForIndex(_ index: Int, totalCount: Int, origin: CGPoint, radius: CGFloat, fullAngle: CGFloat = 360, centeredOnAngle: CGFloat = 90) -> CGPoint {
+        
+        let currentSegmentIndex: CGFloat = CGFloat(index) + CGFloat(fullAngle < 360 ? 1 : 0)
+        let segmentCount: CGFloat = CGFloat(totalCount) + CGFloat(fullAngle < 360 ? 1 : 0)
+        let centeredAdjustment: CGFloat = centeredOnAngle - ((fullAngle / 2.0))
+        let segmentAngle: CGFloat = fullAngle / segmentCount
+        
+        var destinationAngle = (currentSegmentIndex * segmentAngle)
+        destinationAngle = destinationAngle + centeredAdjustment
+        let destinationRadians = destinationAngle * CGFloat(.pi / 180.0)
+
+        let x: CGFloat = radius * cos(destinationRadians) + origin.x
+        let y: CGFloat = radius * sin(destinationRadians) + origin.y
+        
+        return CGPoint(x: x, y: y)
+    }
+    
+    private func normalizedAngle(_ angle: CGFloat) -> CGFloat {
+        let remainder = angle.truncatingRemainder(dividingBy: 360.0)
+        var normalized: CGFloat = remainder
+        if (normalized < 0.0) {
+            normalized = normalized + 360.0
+        }
+        return normalized
     }
     
     private func setupDynamicBehaviors() {
@@ -98,7 +138,6 @@ class RadialMenuController {
     }
     
     private func configurePrimaryButton() {
-        model.primaryButton.addTarget(self, action: #selector(primaryButtonTouchUpInside), for: .touchUpInside)
         model.primaryButton.addTarget(self, action: #selector(primaryButtonTouchDragEnter), for: .touchDragEnter)
         model.primaryButton.addTarget(self, action: #selector(primaryButtonTouchDragExit), for: .touchDragExit)
         model.primaryButton.addTarget(self, action: #selector(primaryButtonTouchDown), for: .touchDown)
@@ -137,10 +176,6 @@ class RadialMenuController {
     
     @objc func primaryButtonTouchDown(button: UIButton) {
         NSLog(#function)
-    }
-    
-    @objc func primaryButtonTouchUpInside(button: UIButton) {
-        NSLog(#function)
         let newState: RadialMenuState = (state == .closed) ? .open : .closed
         state = newState
     }
@@ -157,6 +192,7 @@ class RadialMenuController {
         if let secondaryButtonIndex = model.secondaryButtons.index(of: button) {
             NSLog(#function + " - \(secondaryButtonIndex)")
         }
+        state = .closed
     }
     
     @objc func secondaryButtonTouchDragEnter(button: UIButton) {
