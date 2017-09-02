@@ -9,10 +9,37 @@
 import UIKit
 
 class ViewController: UIViewController {
+    let radialMenuView: RadialMenuView = {
+        let primaryButton = UIButton(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
+        primaryButton.backgroundColor = .purple
+        
+        var secondaryButtons = [UIButton]()
+        for i in 1...5 {
+            let secondaryButton = UIButton(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+            secondaryButton.backgroundColor = .blue
+            secondaryButton.tag = i
+            secondaryButton.addTarget(self, action: #selector(secondaryButtonPressed), for: .touchUpInside)
+            secondaryButtons.append(secondaryButton)
+        }
+        
+        let radialMenuView = RadialMenuView(withPrimaryButton: primaryButton, secondaryButtons: secondaryButtons)
+        
+        return radialMenuView
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        view.addSubview(radialMenuView)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        radialMenuView.center = view.center
+        radialMenuView.centerSecondaryButtons()
+    }
+    
+    @objc func secondaryButtonPressed(sender: UIButton) {
+        NSLog("Secondary \(sender.tag)")
     }
 
     override func didReceiveMemoryWarning() {

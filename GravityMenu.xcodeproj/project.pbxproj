@@ -12,6 +12,9 @@
 		E445CFE91F5A49E800AFDB97 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E445CFE71F5A49E800AFDB97 /* Main.storyboard */; };
 		E445CFEB1F5A49E800AFDB97 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E445CFEA1F5A49E800AFDB97 /* Assets.xcassets */; };
 		E445CFEE1F5A49E800AFDB97 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E445CFEC1F5A49E800AFDB97 /* LaunchScreen.storyboard */; };
+		E445CFF61F5A4BF600AFDB97 /* RadialMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E445CFF51F5A4BF600AFDB97 /* RadialMenuView.swift */; };
+		E445CFF81F5A53C200AFDB97 /* RadialMenuModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E445CFF71F5A53C200AFDB97 /* RadialMenuModel.swift */; };
+		E445CFFA1F5A55E800AFDB97 /* RadialMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E445CFF91F5A55E800AFDB97 /* RadialMenuController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +25,9 @@
 		E445CFEA1F5A49E800AFDB97 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E445CFED1F5A49E800AFDB97 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E445CFEF1F5A49E800AFDB97 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E445CFF51F5A4BF600AFDB97 /* RadialMenuView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadialMenuView.swift; sourceTree = "<group>"; };
+		E445CFF71F5A53C200AFDB97 /* RadialMenuModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadialMenuModel.swift; sourceTree = "<group>"; };
+		E445CFF91F5A55E800AFDB97 /* RadialMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadialMenuController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +66,9 @@
 				E445CFEA1F5A49E800AFDB97 /* Assets.xcassets */,
 				E445CFEC1F5A49E800AFDB97 /* LaunchScreen.storyboard */,
 				E445CFEF1F5A49E800AFDB97 /* Info.plist */,
+				E445CFF51F5A4BF600AFDB97 /* RadialMenuView.swift */,
+				E445CFF71F5A53C200AFDB97 /* RadialMenuModel.swift */,
+				E445CFF91F5A55E800AFDB97 /* RadialMenuController.swift */,
 			);
 			path = GravityMenu;
 			sourceTree = "<group>";
@@ -137,8 +146,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E445CFF61F5A4BF600AFDB97 /* RadialMenuView.swift in Sources */,
 				E445CFE61F5A49E800AFDB97 /* ViewController.swift in Sources */,
 				E445CFE41F5A49E800AFDB97 /* AppDelegate.swift in Sources */,
+				E445CFFA1F5A55E800AFDB97 /* RadialMenuController.swift in Sources */,
+				E445CFF81F5A53C200AFDB97 /* RadialMenuModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
