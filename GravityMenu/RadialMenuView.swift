@@ -6,17 +6,19 @@ import UIKit
 
 class RadialMenuView: UIView {
     private let model: RadialMenuModel
-    private let controller: RadialMenuController
+    private var controller: RadialMenuController?
     
     //MARK: - Setup & Teardown
     
-    init(withPrimaryButton primaryButton: UIButton = UIButton(), secondaryButtons: [UIButton] = [UIButton]()) {
+    init(withPrimaryButton primaryButton: UIButton = UIButton(), secondaryButtons: [UIButton]) {
+        guard secondaryButtons.count > 0 else {
+            fatalError("RadialMenuView needs at least one secondary button to work.")
+        }
         self.model = RadialMenuModel(primaryButton: primaryButton, secondaryButtons: secondaryButtons)
-        self.controller = RadialMenuController(withModel: self.model)
         super.init(frame: primaryButton.bounds)
+        self.controller = RadialMenuController(withModel: self.model, view: self)
         clipsToBounds = false
         isOpaque = false
-        setupPrimaryButton()
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -25,43 +27,28 @@ class RadialMenuView: UIView {
     
     //MARK: - Overrides
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        if let controller = controller {
+            controller.viewLayoutSubviews()
+        }
+    }
+    
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
-        addSecondaryButtonsToSuperview()
-        centerSecondaryButtons()
+        if let controller = controller {
+            controller.viewDidMoveToSuperview()
+        }
     }
     
     override func removeFromSuperview() {
         super.removeFromSuperview()
-        removeSecondaryButtonsFromSuperview()
+        if let controller = controller {
+            controller.viewWillRemoveFromSuperview()
+        }
     }
     
     //MARK: - Public
     
-    private func centerSecondaryButtons() {
-        for secondaryButton in model.secondaryButtons {
-            secondaryButton.center = center
-        }
-    }
-    
     //MARK: - Private
-    
-    private func setupPrimaryButton() {
-        addSubview(model.primaryButton)
-        model.primaryButton.center = CGPoint(x: bounds.size.width / 2.0, y: bounds.size.height / 2.0)
-    }
-    
-    private func addSecondaryButtonsToSuperview() {
-        if let superview = superview {
-            for secondaryButton in model.secondaryButtons {
-                superview.addSubview(secondaryButton)
-            }
-        }
-    }
-    
-    private func removeSecondaryButtonsFromSuperview() {
-        for secondaryButton in model.secondaryButtons {
-            secondaryButton.removeFromSuperview()
-        }
-    }
 }

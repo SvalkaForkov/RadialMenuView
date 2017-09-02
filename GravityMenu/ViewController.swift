@@ -14,7 +14,7 @@ class ViewController: UIViewController {
         primaryButton.backgroundColor = .purple
         
         var secondaryButtons = [UIButton]()
-        for i in 1...5 {
+        for i in 1...1 {
             let secondaryButton = UIButton(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
             secondaryButton.backgroundColor = .blue
             secondaryButton.tag = i
@@ -35,7 +35,6 @@ class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         radialMenuView.center = view.center
-        radialMenuView.centerSecondaryButtons()
     }
     
     @objc func secondaryButtonPressed(sender: UIButton) {
