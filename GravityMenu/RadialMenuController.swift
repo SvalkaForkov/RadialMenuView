@@ -114,15 +114,6 @@ class RadialMenuController {
         return CGPoint(x: x, y: y)
     }
     
-    private func normalizedAngle(_ angle: CGFloat) -> CGFloat {
-        let remainder = angle.truncatingRemainder(dividingBy: 360.0)
-        var normalized: CGFloat = remainder
-        if (normalized < 0.0) {
-            normalized = normalized + 360.0
-        }
-        return normalized
-    }
-    
     private func setupDynamicBehaviors() {
         for secondaryButton in model.secondaryButtons {
             if let view = view {
@@ -174,9 +165,6 @@ class RadialMenuController {
     //MARK: - Actions
     
     @objc func secondaryButtonTouchUpInside(button: UIButton) {
-        if let secondaryButtonIndex = model.secondaryButtons.index(of: button) {
-            NSLog(#function + " - \(secondaryButtonIndex)")
-        }
         state = .closed
     }
     
@@ -189,9 +177,14 @@ class RadialMenuController {
             state = .closed
         }
         touchIsInsideView = true
+        touchDidExitView = false
     }
     
     func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard state == .open else {
+            return
+        }
+        
         for (_, touch) in touches.enumerated() {
             var point = touch.location(in: view)
             let viewContainsTouch = view!.point(inside: point, with: event)
@@ -222,11 +215,20 @@ class RadialMenuController {
     }
     
     func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for (_, touch) in touches.enumerated() {
+            let point = touch.location(in: view)
+            let viewContainsTouch = view!.point(inside: point, with: event)
+            if viewContainsTouch && touchDidExitView {
+                state = .closed
+            }
+        }
         touchIsInsideView = false
+        touchDidExitView = true
     }
     
     func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         state = .closed
         touchIsInsideView = false
+        touchDidExitView = true
     }
 }
