@@ -23,6 +23,8 @@ class ViewController: UIViewController {
         }
         
         let radialMenuView = RadialMenuView(withPrimaryButton: primaryButton, secondaryButtons: secondaryButtons)
+        radialMenuView.radius = 120
+        radialMenuView.delay = 0.01
         
         return radialMenuView
     }()

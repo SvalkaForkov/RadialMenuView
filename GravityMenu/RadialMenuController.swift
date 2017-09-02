@@ -8,10 +8,6 @@ enum RadialMenuState {
     case open, closed
 }
 
-enum RadialMenuExpansionMode {
-    case full, half
-}
-
 class RadialMenuController {
     let model: RadialMenuModel
     weak var view: RadialMenuView?
@@ -27,17 +23,16 @@ class RadialMenuController {
             updateBehaviors()
         }
     }
-    var expansionMode: RadialMenuExpansionMode = .full {
-        didSet {
-            updateBehaviors()
-        }
-    }
+    var delay: Double = 0.1
+    var touchIsInsideView: Bool = false
+    var touchDidExitView: Bool = false
     
     //MARK: - Setup & Teardown
     
     init(withModel model: RadialMenuModel, view: RadialMenuView) {
         self.model = model
         self.view = view
+        configureView()
         configurePrimaryButton()
         configureSecondaryButtons()
     }
@@ -96,7 +91,9 @@ class RadialMenuController {
             if state == .open {
                 point = calculatePointForIndex(i, totalCount: dynamicBehaviors.count, origin: view.center, radius: radius, fullAngle: 360, centeredOnAngle: 90)
             }
-            snapBehavior.snapPoint = point
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay * Double(i), execute: {
+                snapBehavior.snapPoint = point
+            })
         }
     }
     
@@ -137,17 +134,19 @@ class RadialMenuController {
         }
     }
     
+    private func configureView() {
+        if let view = view {
+            view.isOpaque = false
+        }
+    }
+    
     private func configurePrimaryButton() {
-        model.primaryButton.addTarget(self, action: #selector(primaryButtonTouchDragEnter), for: .touchDragEnter)
-        model.primaryButton.addTarget(self, action: #selector(primaryButtonTouchDragExit), for: .touchDragExit)
-        model.primaryButton.addTarget(self, action: #selector(primaryButtonTouchDown), for: .touchDown)
+        model.primaryButton.isUserInteractionEnabled = false
     }
     
     private func configureSecondaryButtons() {
         for secondaryButton in model.secondaryButtons {
             secondaryButton.addTarget(self, action: #selector(secondaryButtonTouchUpInside), for: .touchUpInside)
-            secondaryButton.addTarget(self, action: #selector(secondaryButtonTouchDragEnter), for: .touchDragEnter)
-            secondaryButton.addTarget(self, action: #selector(secondaryButtonTouchDragExit), for: .touchDragExit)
         }
     }
     
@@ -174,20 +173,6 @@ class RadialMenuController {
     
     //MARK: - Actions
     
-    @objc func primaryButtonTouchDown(button: UIButton) {
-        NSLog(#function)
-        let newState: RadialMenuState = (state == .closed) ? .open : .closed
-        state = newState
-    }
-    
-    @objc func primaryButtonTouchDragEnter(button: UIButton) {
-        NSLog(#function)
-    }
-    
-    @objc func primaryButtonTouchDragExit(button: UIButton) {
-        NSLog(#function)
-    }
-    
     @objc func secondaryButtonTouchUpInside(button: UIButton) {
         if let secondaryButtonIndex = model.secondaryButtons.index(of: button) {
             NSLog(#function + " - \(secondaryButtonIndex)")
@@ -195,15 +180,53 @@ class RadialMenuController {
         state = .closed
     }
     
-    @objc func secondaryButtonTouchDragEnter(button: UIButton) {
-        if let secondaryButtonIndex = model.secondaryButtons.index(of: button) {
-            NSLog(#function + " - \(secondaryButtonIndex)")
+    //MARK: - Touches
+    
+    func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if state == .closed {
+            state = .open
+        } else {
+            state = .closed
+        }
+        touchIsInsideView = true
+    }
+    
+    func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for (_, touch) in touches.enumerated() {
+            var point = touch.location(in: view)
+            let viewContainsTouch = view!.point(inside: point, with: event)
+            if viewContainsTouch {
+                if !touchIsInsideView {
+                    model.primaryButton.sendActions(for: .touchDragEnter)
+                    touchIsInsideView = true
+                }
+                return
+            } else {
+                if touchIsInsideView {
+                    model.primaryButton.sendActions(for: .touchDragExit)
+                    touchIsInsideView = false
+                    touchDidExitView = true
+                }
+            }
+            for button in model.secondaryButtons {
+                let intersects = view!.frame.intersects(button.frame)
+                if !intersects {
+                    point = touch.location(in: button)
+                    if button.point(inside: point, with: event) {
+                        button.sendActions(for: .touchUpInside)
+                        return
+                    }
+                }
+            }
         }
     }
     
-    @objc func secondaryButtonTouchDragExit(button: UIButton) {
-        if let secondaryButtonIndex = model.secondaryButtons.index(of: button) {
-            NSLog(#function + " - \(secondaryButtonIndex)")
-        }
+    func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        touchIsInsideView = false
+    }
+    
+    func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        state = .closed
+        touchIsInsideView = false
     }
 }

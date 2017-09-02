@@ -20,6 +20,19 @@ class RadialMenuView: UIView {
             }
         }
     }
+    var delay: Double {
+        get {
+            if let controller = controller {
+                return controller.delay
+            }
+            return 0
+        }
+        set {
+            if let controller = controller {
+                controller.delay = newValue
+            }
+        }
+    }
 
     
     //MARK: - Setup & Teardown
@@ -31,7 +44,6 @@ class RadialMenuView: UIView {
         self.model = RadialMenuModel(primaryButton: primaryButton, secondaryButtons: secondaryButtons)
         super.init(frame: primaryButton.bounds)
         self.controller = RadialMenuController(withModel: self.model, view: self)
-        isOpaque = false
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -61,7 +73,48 @@ class RadialMenuView: UIView {
         }
     }
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        if let controller = controller {
+            controller.touchesBegan(touches, with: event)
+        }
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesMoved(touches, with: event)
+        if let controller = controller {
+            controller.touchesMoved(touches, with: event)
+        }    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        if let controller = controller {
+            controller.touchesEnded(touches, with: event)
+        }
+    }
+    
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesCancelled(touches, with: event)
+        if let controller = controller {
+            controller.touchesCancelled(touches, with: event)
+        }
+    }
+    
     //MARK: - Public
     
+    func open() {
+        if let controller = controller {
+            controller.state = .open
+        }
+    }
+    
+    func close() {
+        if let controller = controller {
+            controller.state = .closed
+        }
+    }
+    
     //MARK: - Private
+    
+
 }
