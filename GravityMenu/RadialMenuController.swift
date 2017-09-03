@@ -8,6 +8,8 @@ enum RadialMenuState {
     case open, closed
 }
 
+typealias RadialMenuButtonProgressClosure = ((UIButton, Double) -> ())?
+
 class RadialMenuController {
     let model: RadialMenuModel
     weak var view: RadialMenuView?
@@ -26,6 +28,7 @@ class RadialMenuController {
     var delay: Double = 0.1
     var touchIsInsideView: Bool = false
     var touchDidExitView: Bool = false
+    var progressClosure: RadialMenuButtonProgressClosure?
     
     //MARK: - Setup & Teardown
     
@@ -83,16 +86,20 @@ class RadialMenuController {
         }
         
         for (i, behavior) in dynamicBehaviors.enumerated() {
-            guard let snapBehavior = behavior as? UISnapBehavior else {
+            guard let behavior = behavior as? UISnapBehavior else {
                 continue
             }
             
-            var point = view.center
+            var point = CGPoint.zero
             if state == .open {
+                behavior.damping = 0.0
                 point = calculatePointForIndex(i, totalCount: dynamicBehaviors.count, origin: view.center, radius: radius, fullAngle: 360, centeredOnAngle: 90)
+            } else {
+                behavior.damping = 1.0
+                point = view.center
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + delay * Double(i), execute: {
-                snapBehavior.snapPoint = point
+                behavior.snapPoint = point
             })
         }
     }
@@ -118,9 +125,21 @@ class RadialMenuController {
         for secondaryButton in model.secondaryButtons {
             if let view = view {
                 let point = view.center
-                let snapBehavior = UISnapBehavior(item: secondaryButton, snapTo: point)
-                dynamicAnimator?.addBehavior(snapBehavior)
-                dynamicBehaviors.append(snapBehavior)
+                let behavior = UISnapBehavior(item: secondaryButton, snapTo: point)
+                behavior.action = {
+                    guard let progressClosure = self.progressClosure else {
+                        return
+                    }
+                    
+                    let point1 = self.view!.center
+                    let point2 = secondaryButton.center
+                    let fullDistance = self.radius
+                    let partialDistance = self.distanceBetweenPoints(point1, point2)
+                    let progress = min(partialDistance / fullDistance, 1.0)
+                    progressClosure!(secondaryButton, Double(progress))
+                }
+                dynamicAnimator?.addBehavior(behavior)
+                dynamicBehaviors.append(behavior)
             }
         }
     }
@@ -160,6 +179,13 @@ class RadialMenuController {
         for secondaryButton in model.secondaryButtons {
             secondaryButton.removeFromSuperview()
         }
+    }
+    
+    func distanceBetweenPoints(_ a: CGPoint, _ b: CGPoint) -> CGFloat {
+        let xDist = a.x - b.x
+        let yDist = a.y - b.y
+        
+        return CGFloat(sqrt((xDist * xDist) + (yDist * yDist)))
     }
     
     //MARK: - Actions

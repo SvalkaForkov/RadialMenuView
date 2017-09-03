@@ -33,6 +33,19 @@ class RadialMenuView: UIView {
             }
         }
     }
+    var progressClosure: RadialMenuButtonProgressClosure? {
+        get {
+            if let controller = controller {
+                return controller.progressClosure
+            }
+            return nil
+        }
+        set {
+            if let controller = controller {
+                controller.progressClosure = newValue
+            }
+        }
+    }
 
     
     //MARK: - Setup & Teardown

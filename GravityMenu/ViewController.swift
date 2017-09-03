@@ -25,6 +25,14 @@ class ViewController: UIViewController {
         let radialMenuView = RadialMenuView(withPrimaryButton: primaryButton, secondaryButtons: secondaryButtons)
         radialMenuView.radius = 120
         radialMenuView.delay = 0.01
+        radialMenuView.progressClosure = { button, progress in
+            let invisibleUntil: CGFloat = 0.4
+            var alpha: CGFloat = 0
+            if CGFloat(progress) > invisibleUntil {
+                alpha = (CGFloat(progress) - invisibleUntil) * 1.0 / invisibleUntil
+            }
+            button.alpha = CGFloat(alpha)
+        }
         
         return radialMenuView
     }()
