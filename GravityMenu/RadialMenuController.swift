@@ -17,6 +17,7 @@ class RadialMenuController {
     var dynamicBehaviors = [UIDynamicBehavior]()
     var state: RadialMenuState = .closed {
         didSet {
+            setSecondaryButtonsEnabled(state == .open)
             updateBehaviors()
         }
     }
@@ -29,6 +30,7 @@ class RadialMenuController {
     var touchIsInsideView: Bool = false
     var touchDidExitView: Bool = false
     var progressClosure: RadialMenuButtonProgressClosure?
+    var selectedButton: UIButton?
     
     //MARK: - Setup & Teardown
     
@@ -84,12 +86,21 @@ class RadialMenuController {
         guard let view = view else {
             return
         }
-        
+        var selectedButtonBehavior: UISnapBehavior?
+        if let selectedButton = selectedButton {
+            if let index = model.secondaryButtons.index(of: selectedButton) {
+                selectedButtonBehavior = dynamicBehaviors[index] as? UISnapBehavior
+            }
+            self.selectedButton = nil
+        }
         for (i, behavior) in dynamicBehaviors.enumerated() {
             guard let behavior = behavior as? UISnapBehavior else {
                 continue
             }
-            
+            var selectedButtonDelay: Double = 0.0
+            if selectedButtonBehavior == behavior {
+                selectedButtonDelay = 0.1
+            }
             var point = CGPoint.zero
             if state == .open {
                 behavior.damping = 0.0
@@ -98,7 +109,7 @@ class RadialMenuController {
                 behavior.damping = 1.0
                 point = view.center
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay * Double(i), execute: {
+            DispatchQueue.main.asyncAfter(deadline: .now() + ((delay * Double(i)) + selectedButtonDelay), execute: {
                 behavior.snapPoint = point
             })
         }
@@ -181,6 +192,12 @@ class RadialMenuController {
         }
     }
     
+    private func setSecondaryButtonsEnabled(_ enabled: Bool) {
+        for secondaryButton in model.secondaryButtons {
+            secondaryButton.isUserInteractionEnabled = enabled
+        }
+    }
+    
     func distanceBetweenPoints(_ a: CGPoint, _ b: CGPoint) -> CGFloat {
         let xDist = a.x - b.x
         let yDist = a.y - b.y
@@ -191,6 +208,7 @@ class RadialMenuController {
     //MARK: - Actions
     
     @objc func secondaryButtonTouchUpInside(button: UIButton) {
+        selectedButton = button
         state = .closed
     }
     
@@ -228,8 +246,8 @@ class RadialMenuController {
                 }
             }
             for button in model.secondaryButtons {
-                let intersects = view!.frame.intersects(button.frame)
-                if !intersects {
+                let buttonIntersectsView = view!.frame.intersects(button.frame)
+                if !buttonIntersectsView && button.isUserInteractionEnabled {
                     point = touch.location(in: button)
                     if button.point(inside: point, with: event) {
                         button.sendActions(for: .touchUpInside)

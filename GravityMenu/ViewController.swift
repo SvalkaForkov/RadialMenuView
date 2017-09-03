@@ -14,8 +14,8 @@ class ViewController: UIViewController {
         primaryButton.backgroundColor = .purple
         
         var secondaryButtons = [UIButton]()
-        for i in 1...8 {
-            let secondaryButton = UIButton(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+        for i in 1...3 {
+            let secondaryButton = UIButton(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
             secondaryButton.backgroundColor = .blue
             secondaryButton.tag = i
             secondaryButton.addTarget(self, action: #selector(secondaryButtonPressed), for: .touchUpInside)
@@ -23,7 +23,7 @@ class ViewController: UIViewController {
         }
         
         let radialMenuView = RadialMenuView(withPrimaryButton: primaryButton, secondaryButtons: secondaryButtons)
-        radialMenuView.radius = 120
+        radialMenuView.radius = 100
         radialMenuView.delay = 0.01
         radialMenuView.progressClosure = { button, progress in
             let invisibleUntil: CGFloat = 0.4
@@ -32,6 +32,8 @@ class ViewController: UIViewController {
                 alpha = (CGFloat(progress) - invisibleUntil) * 1.0 / invisibleUntil
             }
             button.alpha = CGFloat(alpha)
+            button.transform = CGAffineTransform(scaleX: CGFloat(progress), y: CGFloat(progress))
+            radialMenuView.transform = CGAffineTransform(scaleX: 1.0 - CGFloat(progress) / 4.0, y: 1.0 - CGFloat(progress) / 4.0)
         }
         
         return radialMenuView
