@@ -62,7 +62,7 @@ class RadialMenuController {
             addPrimaryButtonToView()
         }
         addSecondaryButtonsToViewSuperview()
-        viewSuperview.bringSubview(toFront: view)
+        viewSuperview.bringSubviewToFront(view)
     }
     
     func viewWillRemoveFromSuperview() {
@@ -88,7 +88,7 @@ class RadialMenuController {
         }
         var selectedButtonBehavior: UISnapBehavior?
         if let selectedButton = selectedButton {
-            if let index = model.secondaryButtons.index(of: selectedButton) {
+            if let index = model.secondaryButtons.firstIndex(of: selectedButton) {
                 selectedButtonBehavior = dynamicBehaviors[index] as? UISnapBehavior
             }
             self.selectedButton = nil
