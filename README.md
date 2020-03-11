@@ -2,7 +2,7 @@
 
 A simple iOS physics-based radial menu that uses UIKit Dynamics.
 
-![Alt Text](https://media.giphy.com/media/H6cfLGBJS7RyttDcf0/giphy.gif)
+![RadialMenuView animation demo](https://media.giphy.com/media/hu7CblZSDtsWO2vYB2/giphy.gif)
 
 **Basic Usage:**
 1. Copy the three files in the `RadialMenuView` group into your project.
